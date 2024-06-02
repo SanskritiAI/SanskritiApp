@@ -1,3 +1,7 @@
+import sys 
+import os 
+sys.path.append(os.getcwd())
+
 import streamlit as st
 from sanskriti_bench.components.auth import UserAuth
 from sanskriti_bench.components.about import about
