@@ -1,0 +1,5 @@
+venv
+__pycache__
+sanskriti_bench/__pycache__
+sanskriti_bench/components/__pycache__
+sanskriti_bench/db/__pycache__

@@ -1,0 +1,7 @@
+PyYAML
+streamlit
+streamlit-authenticator
+fastapi
+pydantic
+tabulate 
+pytest 
