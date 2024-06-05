@@ -17,6 +17,7 @@ def create_table(database_name: str, table_name: str) -> bool:
                     password TEXT NOT NULL,
                     language TEXT NOT NULL, 
                     role TEXT NOT NULL, 
+                    affiliation TEXT,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP 
                 )
                 """
@@ -32,14 +33,14 @@ def create_new_user(database_name: str, table_name: str, values: dict) -> bool:
         with DataBaseContextManager(
             database_name=database_name
         )  as cursor:
-            keys = ["email", "user_name", "name", "password", "language", "role"]
+            keys = ["email", "user_name", "name", "password", "language", "role", "affiliation"]
             values_to_insert = tuple([
                 values.get(key, "null") for key in keys
             ])            
             cursor.execute(
                 f"""INSERT INTO {table_name} (
-                    email, user_name, name, password, language, role
-                ) VALUES (?, ?, ?, ?, ?, ?)
+                    email, user_name, name, password, language, role, affiliation
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)
                 """, values_to_insert
             )
         logger.info("Data inserted successfully.")
@@ -131,6 +132,21 @@ def get_all_user_by_role(database_name: str, table_name: str, role: str):
         logger.error(f"Failed to fetch admins: {e}")
         return None 
 
+def get_all_rows_of_column(database_name: str, table_name: str, column_name: str):
+    try:
+        with DataBaseContextManager(
+            database_name=database_name
+        ) as cursor:
+            cursor.execute(
+                f"""SELECT {column_name} FROM {table_name}""" 
+            )
+            rows = cursor.fetchall()
+            return rows          
+    except Exception as e:
+        logger.error(f"Failed to fetch admins: {e}")
+        return None
+
+
 def fetch_lang_table(database_name: str, table_name: str, language: str):
     try:
         with DataBaseContextManager(
@@ -146,3 +162,74 @@ def fetch_lang_table(database_name: str, table_name: str, language: str):
     except Exception as e:
         logger.error(f"Failed to fetch admins: {e}")
         return None, None 
+
+def alter_user_information(
+        database_name: str, 
+        table_name: str, 
+        user_name_or_id: str,
+        key: str, 
+        value: str 
+):
+    print("=======")
+    print(value)
+    print(user_name_or_id)
+    print("***********")
+
+    if isinstance(user_name_or_id, str):
+        selection_by = "user_name"
+    else:
+        selection_by = "uid"
+    
+    SQL = f"""UPDATE {table_name} SET {key} = ? WHERE {selection_by} = ?
+    """
+    try:
+        with DataBaseContextManager(
+            database_name=database_name
+        ) as cursor:
+            cursor.execute(SQL, (value, user_name_or_id,))
+            return True  
+    except Exception as e:
+        logger.error(f"Unable to alter unser info. Reason: {e}")
+        return False 
+
+
+
+def delete_by_id(database_name: str, table_name: str, user_name_or_id: Union[str, int]):
+    if isinstance(user_name_or_id, int):
+        key = "user_name"
+    else:
+        key = "uid"
+    try:
+        with DataBaseContextManager(
+            database_name=database_name
+        ) as cursor:
+            cursor.execute(
+                f"""DELETE FROM {table_name} WHERE {key} = ?
+                """, (user_name_or_id,)
+            )
+        return True 
+    except Exception as e:
+        logger.error(f"Not able to delete user/id: {user_name_or_id} reason: {e}")
+        return False 
+
+
+def get_full_user_info(database_name: str, table_name: str, user_name_or_id: Union[str, int]):
+    if isinstance(user_name_or_id, int):
+        key = "user_name"
+    else:
+        key = "uid"
+    
+    try:
+        with DataBaseContextManager(
+            database_name=database_name
+        ) as cursor:
+            cursor.execute(
+                f"""SELECT * FROM {table_name} WHERE {key} = ?
+                """, (user_name_or_id, )
+            )
+            rows = cursor.fetchall()
+            columns = [desc[0] for desc in cursor.description]
+            return rows, columns 
+    except Exception as e:
+        logger.error(f"Error fetching user/id: {user_name_or_id} reason: {e}")
+        return None, None  

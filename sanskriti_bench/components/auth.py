@@ -2,8 +2,7 @@ import streamlit as st
 import streamlit_authenticator as stauth
 
 import sanskriti_bench.db.auth_functions as auth_fn 
-import sanskriti_bench.db.crud_functions as crud_dn 
-from sanskriti_bench.db.common import create_database, db_exists, table_exists
+import sanskriti_bench.db.crud_functions as crud_fn
 from sanskriti_bench.settings import DB_NAME, AUTH_TABLE_NAME, DATA_TABLE_NAME
 
 from sanskriti_bench.components.admin_view import full_admin_view
@@ -12,6 +11,9 @@ from sanskriti_bench.components.manager_view import full_manager_view
 
 class UserAuth:
     def create_widget(self):
+        # auth_fn.create_table(database_name=DB_NAME, table_name=AUTH_TABLE_NAME)
+        # crud_fn.create_table(database_name=DB_NAME, table_name=DATA_TABLE_NAME)
+
         auth_config = auth_fn.get_all_users_and_export_as_dict(
             database_name=DB_NAME, table_name=AUTH_TABLE_NAME
         )
