@@ -17,6 +17,7 @@ def create_table(database_name: str, table_name: str) -> bool:
                     password TEXT NOT NULL,
                     language TEXT NOT NULL, 
                     role TEXT NOT NULL, 
+                    region TEXT NOT NULL, 
                     affiliation TEXT,
                     created_at DATETIME DEFAULT CURRENT_TIMESTAMP 
                 )
@@ -33,14 +34,14 @@ def create_new_user(database_name: str, table_name: str, values: dict) -> bool:
         with DataBaseContextManager(
             database_name=database_name
         )  as cursor:
-            keys = ["email", "user_name", "name", "password", "language", "role", "affiliation"]
+            keys = ["email", "user_name", "name", "password", "language", "role", "region", "affiliation"]
             values_to_insert = tuple([
                 values.get(key, "null") for key in keys
             ])            
             cursor.execute(
                 f"""INSERT INTO {table_name} (
-                    email, user_name, name, password, language, role, affiliation
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    email, user_name, name, password, language, role, region, affiliation
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """, values_to_insert
             )
         logger.info("Data inserted successfully.")
@@ -85,7 +86,6 @@ def get_all_users_and_export_as_dict(database_name: str, table_name: str) -> Uni
         logger.error(f"Failed to read data from table '{table_name}': {e}")
         return None 
 
-
 def fetch_all_users(database_name: str, table_name: str):
     try:
         with DataBaseContextManager(
@@ -114,7 +114,6 @@ def fetch_all_users_by_lang(database_name: str, table_name: str, language: str):
     except Exception as e:
         logger.error(f"Failed to read data from table '{table_name}': {e}")
         return None, None 
-
 
 def get_all_user_by_role(database_name: str, table_name: str, role: str):
     try:
@@ -170,11 +169,6 @@ def alter_user_information(
         key: str, 
         value: str 
 ):
-    print("=======")
-    print(value)
-    print(user_name_or_id)
-    print("***********")
-
     if isinstance(user_name_or_id, str):
         selection_by = "user_name"
     else:
@@ -193,12 +187,16 @@ def alter_user_information(
         return False 
 
 
-
-def delete_by_id(database_name: str, table_name: str, user_name_or_id: Union[str, int]):
+def delete_by_id(
+    database_name: str, 
+    table_name: str, 
+    user_name_or_id: Union[str, int],
+    type: str = "auth"
+):
     if isinstance(user_name_or_id, int):
         key = "user_name"
     else:
-        key = "uid"
+        key = "uid" if type == "auth" else "sid"
     try:
         with DataBaseContextManager(
             database_name=database_name

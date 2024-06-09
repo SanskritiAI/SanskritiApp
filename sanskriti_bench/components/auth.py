@@ -11,8 +11,8 @@ from sanskriti_bench.components.manager_view import full_manager_view
 
 class UserAuth:
     def create_widget(self):
-        # auth_fn.create_table(database_name=DB_NAME, table_name=AUTH_TABLE_NAME)
-        # crud_fn.create_table(database_name=DB_NAME, table_name=DATA_TABLE_NAME)
+        auth_fn.create_table(database_name=DB_NAME, table_name=AUTH_TABLE_NAME)
+        crud_fn.create_table(database_name=DB_NAME, table_name=DATA_TABLE_NAME)
 
         auth_config = auth_fn.get_all_users_and_export_as_dict(
             database_name=DB_NAME, table_name=AUTH_TABLE_NAME

@@ -1,3 +1,4 @@
+import time 
 import json 
 from datetime import datetime
 import streamlit as st 
@@ -5,7 +6,7 @@ import pandas as pd
 import sanskriti_bench.db.crud_functions as crud 
 import sanskriti_bench.db.auth_functions as auth 
 from sanskriti_bench.settings import (
-    ROLES, LANGUAGES, DB_NAME, AUTH_TABLE_NAME, DATA_TABLE_NAME
+    ROLES, LANGUAGES, DB_NAME, AUTH_TABLE_NAME, DATA_TABLE_NAME, ALL_INDIAN_STATES
 )
 
 def admin_privilages_manager_component():
@@ -18,6 +19,9 @@ def admin_privilages_manager_component():
         password = st.text_input(label="Create password")
         language = st.selectbox(label="select language", options=LANGUAGES)
         role = st.selectbox(label="select role", options=ROLES)
+        region = st.selectbox(
+            label="Choose your region", options=ALL_INDIAN_STATES
+        )
         affiliation = st.text_input(label="What is your affiliation school/uninversity/company", value="null")
 
         button = st.form_submit_button(label="Submit")
@@ -35,6 +39,7 @@ def admin_privilages_manager_component():
                         "password": password,
                         "language": language, 
                         "role": role,
+                        "region": region,
                         "affiliation": affiliation
                     }
                 )
@@ -94,21 +99,56 @@ def see_contributions():
     else:
         st.error("No Data Found")
 
-def delete_user_view():
+
+def delete_one_user(table_name, user_id: str):
+    status = auth.delete_by_id(
+        database_name=DB_NAME, 
+        table_name=table_name,
+        user_name_or_id=user_id,
+        type="auth"
+    )
+    if status:
+        st.toast(f"Deleted user: {user_id}", icon="🥹")
+    else:
+        st.toast("Unable to delete", icon="❌")
+
+
+def delete_user_view(type="auth"):
+    table_name = AUTH_TABLE_NAME if type == "auth" else DATA_TABLE_NAME
+
     with st.form(key="Delete an user", clear_on_submit=True):
+        st.write(
+            "You either type the uid you want to delete for single user "
+            "or type in the range to delete in bulk. So let's say "
+            "if you want to delte from uid 5 to 29 just type 5-29"
+        )
         user_name_or_id = st.text_input("Enter a valid user name or id")
         submit = st.form_submit_button("submit")
         if submit:
-            status = auth.delete_by_id(
-                database_name=DB_NAME, 
-                table_name=AUTH_TABLE_NAME,
-                user_name_or_id=user_name_or_id
-            )
-
-            if status:
-                st.toast("Deleted user", icon="🥹")
+            user_name_or_id = user_name_or_id.split("-")
+            if len(user_name_or_id) == 1:
+                delete_one_user(
+                    table_name=table_name, user_id=user_name_or_id[0]
+                )
             else:
-                st.toast("Unable to delete user", icon="❌")
+                # assumption it will always return two values (upper and lower limit)
+                upper, lower = user_name_or_id
+                upper, lower = int(upper), int(lower)
+                gather_user_to_delete = [u for u in range(upper, lower + 1)]
+                all_user_ids = [element[0] for element in auth.get_all_rows_of_column(
+                    database_name=DB_NAME,
+                    table_name=AUTH_TABLE_NAME,
+                    column_name="uid"
+                )]
+                
+                print(all_user_ids)
+                for user in gather_user_to_delete:
+                    if user in all_user_ids:
+                        delete_one_user(table_name=table_name, user_id=str(user))
+                        time.sleep(0.1)
+
+
+                
 
 def alter_user_information(user_name_or_id):
     rows, _ = auth.get_full_user_info(
@@ -124,7 +164,8 @@ def alter_user_information(user_name_or_id):
         password = st.text_input(label="password", placeholder=rows[4]) or rows[4]
         language = st.selectbox(label="language", options=LANGUAGES, index=LANGUAGES.index(rows[5])) 
         role = st.selectbox(label="role", options=ROLES, index=ROLES.index(rows[6]))
-        affiliation = st.text_input(label="Affiliation", placeholder=rows[7]) or rows[7]
+        region = st.selectbox(label="region", options=ALL_INDIAN_STATES, index=ALL_INDIAN_STATES.index(rows[7]))
+        affiliation = st.text_input(label="Affiliation", placeholder=rows[8]) or rows[8]
         update = st.form_submit_button(label="Update")
 
     if update:
@@ -136,6 +177,7 @@ def alter_user_information(user_name_or_id):
             "password": password,
             "language": language, 
             "role": role,
+            "region": region, 
             "affiliation": affiliation
         }
 
@@ -162,7 +204,7 @@ def upload_auth_csv():
         # By default we will assume that it uploaded a user table 
         if uploader:
             csv = pd.read_csv(uploader)
-            expected_schema = ['uid', 'email', 'user_name', 'name', 'password', 'language', 'role', 'affiliation']
+            expected_schema = ['uid', 'email', 'user_name', 'name', 'password', 'language', 'role', 'region', 'affiliation']
             if all([element in csv.columns for element in expected_schema]):
                 csv = csv[expected_schema]
                 st.write(csv)
@@ -195,6 +237,7 @@ def upload_auth_csv():
                             "password": row["password"],
                             "language": row["language"],
                             "role": row["role"],
+                            "region": row["region"],
                             "affiliation": row["affiliation"]
                         }
                     ) 
@@ -284,3 +327,6 @@ def full_admin_view():
         export_all_user_information(type="contributions")
         st.write("#### Upload external data from CSV")
         upload_data_csv()
+        st.write("#### Warning: Delete a row")
+        st.write("Select sid to remove the entire row. Do only if it is necessary (like removing duplicates)")
+        delete_user_view(type="data")

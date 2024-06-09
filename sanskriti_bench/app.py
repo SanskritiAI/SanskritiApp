@@ -15,29 +15,28 @@ from sanskriti_bench.settings import LANGUAGES, DB_NAME, DATA_TABLE_NAME
 
 def show_before_login():
     with st.container(border=10):
-        st.write(
+        st.markdown(
             "Welcome to Sanskriti Bench. To your left side you will "
             "find navigation. Please check out the guidelines before contributing."
             " Also you can find our tutorials on how to contribute question and answer"
             " in your language through phone and web platform."
-            "You should have got your username and password from our admin, if not"
-            "please contact them in discord or mail them. You can find more info about "
-            "that in our guidelines section."
+            " You should have got your username and password from our admin, if not"
+            " please contact them in discord or fill out this  "
+            " [google form](https://forms.gle/nVsXbsgkY4U2nvL79)"
         )
         st.markdown(
             """
-            If you don't have your credentials kindly reach out to us at:
+            ##### Quick Start:
+            Once you join to become a contributor, please do the following:
 
-            - [Discord](https://discord.gg/BK8UmK3xZC)
-            - Mail us at: `guneetsk99@gmail.com` or `proanindyadeep@gmail.com`
-            - Join this whatsapp group: [Group Link](https://chat.whatsapp.com/J6HrW6YlaupJMSZh2bTinD)
-            
-            When you mail or write in whatsapp, just write the following info:
-            1. Your name and email
-            2. Any affiliations
-            3. What language you wish to contribute
-            4. Do you want to manage a language (in this case, we would like to talk more)
+            1. Join [Discord](https://discord.gg/BK8UmK3xZC)
+            2. Fill out this [google form](https://forms.gle/nVsXbsgkY4U2nvL79) if you
+            do not have your credentials for contributing.
+            3. Join this whatsapp group: [Group Link](https://chat.whatsapp.com/J6HrW6YlaupJMSZh2bTinD). Although we prefer discord, it is only for them
+            who are not well versed with Discord. 
+            4. Checkout the Guideline section to understand the rules. 
 
+            Mail us at: `guneetsk99@gmail.com` / `proanindyadeep@gmail.com` / `ashishvashist024@gmail.com` for any kind of personal questions or ask that in discord.
             Kindly check out the Guidelines page in the left navigation bar for further questions.  
         """
         )
