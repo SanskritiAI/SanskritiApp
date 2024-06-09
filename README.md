@@ -1,5 +1,7 @@
 ## Sanskriti Bench App 
 
+<img width="661" alt="Screenshot 2024-06-05 at 7 07 26 PM" src="https://github.com/SanskritiAI/SanskritiApp/assets/58508471/ea017675-3acc-40a9-a91f-0fcb4298256b">
+
 Welcome everyone to Sanskriti Bench. This is the open source version of our [deployed application](https://sanskritiai.streamlit.app). The purpose of open sourcing the application (without the database) are the following:
 
 1. Make the processes as much transparent as possible.
