@@ -1,0 +1,8 @@
+venv 
+archive
+todo
+temp.py
+.streamlit/secrets.toml
+sanskriti_bench/__pycache__
+sanskriti_bench/db/__pycache__
+sanskriti_bench/components/__pycache__
